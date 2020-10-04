@@ -2,10 +2,11 @@ import os
 import transformers
 from lm_eval.base import LM
 from lm_eval import utils
-from . import MODEL_REGISTRY
+import time
+#from . import MODEL_REGISTRY
 
 
-@MODEL_REGISTRY.register("gpt3")
+#@MODEL_REGISTRY.register("gpt3")
 class GPT3LM(LM):
 
     MAX_LENGTH = 2048
@@ -57,13 +58,21 @@ class GPT3LM(LM):
             prompt = self.smart_truncate(full_text, buffer=0)
         else:
             prompt = full_text
-        response = openai.Completion.create(
-            engine=self.engine,
-            prompt=prompt,
-            echo=True,
-            max_tokens=0, temperature=0.0,
-            logprobs=0,
-        )
+
+        while True:
+            try:
+                response = openai.Completion.create(
+                    engine=self.engine,
+                    prompt=prompt,
+                    echo=True,
+                    max_tokens=0, temperature=0.0,
+                    logprobs=0,
+                )
+                break
+            except openai.error.APIError:
+                print("That model is currently overloaded with other requests. Waiting to retry.")
+                time.sleep(15)
+
         logprobs = response.choices[0]["logprobs"]["token_logprobs"]
         continuation_logprobs = logprobs[-continuation_length:]
         return sum(continuation_logprobs)
