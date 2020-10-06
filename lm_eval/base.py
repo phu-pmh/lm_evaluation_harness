@@ -114,11 +114,13 @@ class Dataset(abc.ABC):
     def fewshot_description(self):
         return ""
 
-    def fewshot_context(self, doc, num_fewshot, provide_description):
+    def fewshot_context(self, doc, num_fewshot, provide_description, few_shot_examples=None):
         raw_description = self.fewshot_description()
         description = (raw_description + "\n===\n\n") if provide_description and raw_description else ""
+        if few_shot_examples is None:
+            few_shot_examples = self.fewshot_examples(k=num_fewshot)
         labeled_examples = "\n\n".join(
-            map(self.doc_to_text, self.fewshot_examples(k=num_fewshot))
+            map(self.doc_to_text, few_shot_examples)
         ) + "\n\n"
         example = self.doc_to_text(doc, include_target=False).strip()
         return description + labeled_examples + example

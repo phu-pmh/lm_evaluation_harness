@@ -101,7 +101,8 @@ class Copa(NLP_TASK):
             text += self.convert_choice(correct_choice)
         return text
 
-    def evaluate(self, docs, lm, provide_description, num_fewshot):
+
+    def evaluate(self, docs, lm, provide_description, num_fewshot, train_doc=None):
         golds = [doc["label"] for doc in docs]
         preds = []
         for doc in tqdm_lib.tqdm(docs):
@@ -109,6 +110,7 @@ class Copa(NLP_TASK):
                 doc=doc,
                 provide_description=provide_description,
                 num_fewshot=num_fewshot,
+                few_shot_examples=train_doc
             )
             choice1 = " " + self.convert_choice(doc["choice1"])
             choice2 = " " + self.convert_choice(doc["choice2"])
