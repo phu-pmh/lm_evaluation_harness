@@ -25,7 +25,7 @@ def largest_indices(ary, n):
     indices = indices[np.argsort(-flat[indices])]
     return np.unravel_index(indices, ary.shape)
 
-def cross_validation(args, training_docs, task, shuffled_train_indices=None):
+def cross_validation(args, training_docs, task, shuffled_train_indices=None, b_idx=None):
     lm = models.get_model(args.model).create_from_arg_string(args.model_args)
     results = []
 
@@ -49,26 +49,29 @@ def cross_validation(args, training_docs, task, shuffled_train_indices=None):
         result['indices'] = train_indices
         result['accuracy'] = accuracy
         results.append(result)
+        with open(args.output_path + "_"+ str(b_idx) + str(i), "w") as f:
+            dumped = json.dumps(result)
+            f.write(dumped)
     return results
 
 def mc_cross_validation(args, training_docs, task, shuffled_train_indices=None):
-    num_cross_validation = 10
+    num_cross_validation = 8
     all_cross_validation_results = np.zeros((len(training_docs), num_cross_validation))
     for i in range(num_cross_validation):
         results = cross_validation(args, training_docs, task, shuffled_train_indices)
         for tr_subset in results:
             all_cross_validation_results[tr_subset["indices"], i] = tr_subset['accuracy']['major']
+        print("Cross-val {}, accuracy: {}".format(i, tr_subset['accuracy']['major']))
     item_scores = all_cross_validation_results.mean(axis=1)
     return all_cross_validation_results, item_scores
 
 def cross_validation_main(args):
-
     if args.tasks == "all_tasks":
         task_names = tasks.ALL_TASKS
     else:
         task_names = args.tasks.split(",")
     task_dict = tasks.get_task_dict(task_names)
-    task = task_dict['copa']
+    task = task_dict[task_names[0]]
     training_docs = task.training_docs()
 
     all_cross_validation_results, item_scores = mc_cross_validation(args, training_docs, task)
@@ -118,6 +121,7 @@ if __name__ == "__main__":
     args = parse_args()
     random.seed(args.seed)
     np.random.seed(args.seed)
+    args.output_path = "./outputs/"+task
     if args.run_mc_validation:
         print("running MCCV")
         cross_validation_main(args)

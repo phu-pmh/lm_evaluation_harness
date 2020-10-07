@@ -61,7 +61,7 @@ class CommitmentBank(NLP_TASK):
             text += " {}".format({0: "true", 1: "neither", 2: "false"}[doc["label"]])
         return text
 
-    def evaluate(self, docs, lm, provide_description, num_fewshot):
+    def evaluate(self, docs, lm, provide_description, num_fewshot, train_doc=None):
         golds = [doc["label"] for doc in docs]
         preds = []
         for doc in tqdm_lib.tqdm(docs):
@@ -69,6 +69,7 @@ class CommitmentBank(NLP_TASK):
                 doc=doc,
                 provide_description=provide_description,
                 num_fewshot=num_fewshot,
+                few_shot_examples=train_doc
             )
             probs = np.array([
                 lm.loglikelihood(ctx, ' true'),
