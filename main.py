@@ -49,7 +49,7 @@ def cross_validation(args, training_docs, task, shuffled_train_indices=None, b_i
         result['indices'] = train_indices
         result['accuracy'] = accuracy
         results.append(result)
-        with open(args.output_path + "_"+ str(b_idx) + str(i), "w") as f:
+        with open(args.output_path + '/'+args.task_names[0] + "_"+ str(b_idx) + str(i), "w") as f:
             dumped = json.dumps(result)
             f.write(dumped)
     return results
@@ -58,7 +58,7 @@ def mc_cross_validation(args, training_docs, task, shuffled_train_indices=None):
     num_cross_validation = 8
     all_cross_validation_results = np.zeros((len(training_docs), num_cross_validation))
     for i in range(num_cross_validation):
-        results = cross_validation(args, training_docs, task, shuffled_train_indices)
+        results = cross_validation(args, training_docs, task, shuffled_train_indices, b_idx=i)
         for tr_subset in results:
             all_cross_validation_results[tr_subset["indices"], i] = tr_subset['accuracy']['major']
         print("Cross-val {}, accuracy: {}".format(i, tr_subset['accuracy']['major']))
@@ -72,6 +72,7 @@ def cross_validation_main(args):
         task_names = args.tasks.split(",")
     task_dict = tasks.get_task_dict(task_names)
     task = task_dict[task_names[0]]
+    args.task_names=task_names
     training_docs = task.training_docs()
 
     all_cross_validation_results, item_scores = mc_cross_validation(args, training_docs, task)
@@ -121,7 +122,7 @@ if __name__ == "__main__":
     args = parse_args()
     random.seed(args.seed)
     np.random.seed(args.seed)
-    args.output_path = "./outputs/"+task
+    args.output_path = "./outputs/"
     if args.run_mc_validation:
         print("running MCCV")
         cross_validation_main(args)
