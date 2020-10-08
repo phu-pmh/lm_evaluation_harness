@@ -1,0 +1,9 @@
+{
+  "commitmentbank": {
+    "major": 0.48214285714285715,
+    "minor": {
+      "acc": 0.48214285714285715
+    },
+    "higher_is_better": true
+  }
+}

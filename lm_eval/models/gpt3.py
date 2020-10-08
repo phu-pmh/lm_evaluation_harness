@@ -11,7 +11,7 @@ class GPT3LM(LM):
 
     MAX_LENGTH = 2048
 
-    def __init__(self, engine, truncate=False):
+    def __init__(self, engine, truncate=True):
         """
 
         :param engine: str
@@ -55,7 +55,7 @@ class GPT3LM(LM):
         continuation_length = len(self.tokenizer.tokenize(continuation))
         assert full_text_length == context_length + continuation_length
         if self.truncate:
-            prompt = self.smart_truncate(full_text, buffer=0)
+            prompt = self.smart_truncate(self.tokenizer.tokenize(context), self.tokenizer.tokenize(continuation), buffer=0)
         else:
             prompt = full_text
 
@@ -77,10 +77,11 @@ class GPT3LM(LM):
         continuation_logprobs = logprobs[-continuation_length:]
         return sum(continuation_logprobs)
 
-    def smart_truncate(self, string, buffer=1):
-        tokens = self.tokenizer.tokenize(string)
+    def smart_truncate(self, context_tokens, continuation_tokens, buffer=1):
+        #tokens = self.tokenizer.tokenize(context)
         available_length = self.MAX_LENGTH - 1 - buffer  # OpenAI adds 1 token
-        kept_tokens = tokens[-available_length:]
+        num_keep = available_length - (len(context_tokens) + len(continuation_tokens))
+        kept_tokens = context_tokens[:num_keep] + continuation_tokens
         new_string = self.tokenizer.convert_tokens_to_string(kept_tokens)
         return new_string
 

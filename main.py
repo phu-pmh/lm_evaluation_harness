@@ -55,7 +55,7 @@ def cross_validation(args, training_docs, task, shuffled_train_indices=None, b_i
     return results
 
 def mc_cross_validation(args, training_docs, task, shuffled_train_indices=None):
-    num_cross_validation = 8
+    num_cross_validation = 2
     all_cross_validation_results = np.zeros((len(training_docs), num_cross_validation))
     for i in range(num_cross_validation):
         results = cross_validation(args, training_docs, task, shuffled_train_indices, b_idx=i)
@@ -114,7 +114,7 @@ def main(args):
     dumped = json.dumps(results, indent=2)
     print(dumped)
     if args.output_path:
-        with open(args.output_path, "w") as f:
+        with open(args.output_path+task_names[0]+'.jsonl', "w") as f:
             f.write(dumped)
 
 
