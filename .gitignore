@@ -4,3 +4,4 @@ env
 run*.sh
 *.pyc
 data/
+run*.sh
