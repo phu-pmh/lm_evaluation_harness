@@ -95,14 +95,16 @@ class Copa(HFTask):
 
     def doc_to_text(self, doc, include_target=True):
         # Drop the period
-        text = doc["premise"].strip()[:-1] + " because "
+        connector = {
+            "cause": "because",
+            "effect": "therefore",
+        }[doc["question"]]
+        text = doc["premise"].strip()[:-1] + f" {connector} "
         if include_target:
             correct_choice = doc["choice1"] if doc["label"] == 0 else doc["choice2"]
             # Connect the sentences
             text += self.convert_choice(correct_choice)
-        return text
-
-
+            
     def evaluate(self, docs, lm, provide_description, num_fewshot, train_doc=None):
         golds = [doc["label"] for doc in docs]
         preds = []
