@@ -1,5 +1,6 @@
 .idea/*
 logs/*
 env
+run*.sh
 *.pyc
 data/
