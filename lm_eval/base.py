@@ -55,6 +55,14 @@ class LM(abc.ABC):
 
 class Dataset(abc.ABC):
     @abc.abstractmethod
+    def __init__(self):
+        self.download()
+
+    def download(self):
+        """Downloads the task dataset if necessary"""
+        pass
+
+    @abc.abstractmethod
     def has_training_docs(self):
         """Whether the task has a training set"""
         pass
