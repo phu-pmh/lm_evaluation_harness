@@ -1,0 +1,9 @@
+{
+  "boolq": {
+    "major": 0.7669724770642202,
+    "minor": {
+      "acc": 0.7669724770642202
+    },
+    "higher_is_better": true
+  }
+}

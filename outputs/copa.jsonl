@@ -1,8 +1,8 @@
 {
   "copa": {
-    "major": 0.87,
+    "major": 0.92,
     "minor": {
-      "acc": 0.87
+      "acc": 0.92
     },
     "higher_is_better": true
   }
