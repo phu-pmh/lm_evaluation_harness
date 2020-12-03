@@ -2,6 +2,7 @@ import argparse
 import json
 import numpy as np
 import random
+import itertools
 
 from lm_eval import models, tasks
 
@@ -15,10 +16,10 @@ def parse_args():
     parser.add_argument('--seed', type=int, default=1234)
     parser.add_argument('--output_path', default=None)
     parser.add_argument('--run_mc_validation', action="store_true")
+    parser.add_argument('--limit', default=None)
     return parser.parse_args()
 
-
-def main(args):
+def main():
     lm = models.get_model(args.model).create_from_arg_string(args.model_args)
     if args.tasks == "all_tasks":
         task_names = tasks.ALL_TASKS
@@ -30,7 +31,7 @@ def main(args):
         if not task.has_validation_docs():
             continue
         result = task.evaluate(
-            docs=task.validation_docs(),
+            docs=itertools.isslice(task.validation_docs(), 0, args.limit),
             lm=lm,
             provide_description=args.provide_description,
             num_fewshot=args.num_fewshot,

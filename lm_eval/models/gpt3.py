@@ -18,7 +18,7 @@ class GPT3LM(LM):
         """
         import openai
         self.engine = engine
-        self.tokenizer = transformers.GPT2Tokenizer.from_pretrained('gpt2')
+        self.tokenizer = transformers.GPT2TokenizerFast.from_pretrained('gpt2')
         self.truncate = truncate
 
         # Read from environment variable OPENAI_API_SECRET_KEY
@@ -28,21 +28,6 @@ class GPT3LM(LM):
     def create_from_arg_string(cls, arg_string):
         args = utils.simple_parse_args_string(arg_string)
         return cls(engine=args.get("engine", "davinci"))
-
-    def generate(self, context, max_gen_length):
-        import openai
-        if self.truncate:
-            prompt = self.smart_truncate(context, buffer=max_gen_length)
-        else:
-            prompt = context
-
-        response = openai.Completion.create(
-            engine=self.engine,
-            prompt=prompt,
-            max_tokens=max_gen_length,
-            temperature=0.0,
-        )
-        return response.choices[0]["text"]
 
     def loglikelihood(self, context, continuation):
         import openai
@@ -70,8 +55,9 @@ class GPT3LM(LM):
                 print("That model is currently overloaded with other requests. Waiting to retry.")
                 time.sleep(15)
 
+        
         logprobs = response.choices[0]["logprobs"]["token_logprobs"]
-        continuation_logprobs = logprobs[-continuation_length:]
+        continuation_logprobs = logprobs[ctxlen:]
         return sum(continuation_logprobs)
 
     def smart_truncate(self, context_tokens, continuation_tokens, buffer=1):
